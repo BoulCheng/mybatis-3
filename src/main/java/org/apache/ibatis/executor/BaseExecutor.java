@@ -113,6 +113,7 @@ public abstract class BaseExecutor implements Executor {
     if (closed) {
       throw new ExecutorException("Executor was closed.");
     }
+    // insert delete update 更新 清空缓存
     clearLocalCache();
     return doUpdate(ms, parameter);
   }
@@ -132,6 +133,7 @@ public abstract class BaseExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
     BoundSql boundSql = ms.getBoundSql(parameter);
+    // PerpetualCache localCache , key
     CacheKey key = createCacheKey(ms, parameter, rowBounds, boundSql);
     return query(ms, parameter, rowBounds, resultHandler, key, boundSql);
   }
@@ -153,6 +155,7 @@ public abstract class BaseExecutor implements Executor {
       if (list != null) {
         handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
       } else {
+        // 缓存没有从数据库查
         list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
       }
     } finally {
@@ -165,6 +168,7 @@ public abstract class BaseExecutor implements Executor {
       // issue #601
       deferredLoads.clear();
       if (configuration.getLocalCacheScope() == LocalCacheScope.STATEMENT) {
+        //缓存作用域为LocalCacheScope.STATEMENT 则清除缓存
         // issue #482
         clearLocalCache();
       }
@@ -191,6 +195,14 @@ public abstract class BaseExecutor implements Executor {
     }
   }
 
+  /**
+   * MappedStatement Id + Offset + Limit + Sql + Params
+   * @param ms
+   * @param parameterObject
+   * @param rowBounds
+   * @param boundSql
+   * @return
+   */
   @Override
   public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
     if (closed) {
@@ -326,6 +338,7 @@ public abstract class BaseExecutor implements Executor {
     } finally {
       localCache.removeObject(key);
     }
+    //加入缓存
     localCache.putObject(key, list);
     if (ms.getStatementType() == StatementType.CALLABLE) {
       localOutputParameterCache.putObject(key, parameter);

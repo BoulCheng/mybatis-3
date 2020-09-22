@@ -140,10 +140,20 @@ public class DefaultSqlSession implements SqlSession {
     return this.selectList(statement, parameter, RowBounds.DEFAULT);
   }
 
+  /**
+   * select
+   * @param statement Unique identifier matching the statement to use.
+   * @param parameter A parameter object to pass to the statement.
+   * @param rowBounds  Bounds to limit object retrieval
+   * @param <E>
+   * @return
+   */
   @Override
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     try {
       MappedStatement ms = configuration.getMappedStatement(statement);
+      // SqlSession把具体的数据库查询职责委托给了Executor
+      // 如果只开启了一级缓存，首先会进入BaseExecutor的query方法
       return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);
@@ -189,6 +199,12 @@ public class DefaultSqlSession implements SqlSession {
     return update(statement, null);
   }
 
+  /**
+   * insert delete update
+   * @param statement Unique identifier matching the statement to execute.
+   * @param parameter A parameter object to pass to the statement.
+   * @return
+   */
   @Override
   public int update(String statement, Object parameter) {
     try {
