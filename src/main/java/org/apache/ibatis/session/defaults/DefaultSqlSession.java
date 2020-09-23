@@ -154,6 +154,8 @@ public class DefaultSqlSession implements SqlSession {
       MappedStatement ms = configuration.getMappedStatement(statement);
       // SqlSession把具体的数据库查询职责委托给了Executor
       // 如果只开启了一级缓存，首先会进入BaseExecutor的query方法
+      // MyBatis二级缓存的工作流程和一级缓存类似，只是在一级缓存处理前，用CachingExecutor装饰了BaseExecutor的子类，在委托具体职责给delegate之前，通过该CachingExecutor实现了二级缓存的查询和写入功能
+      // 如果开启了二级缓存，首先会进入 CachingExecutor 的query方法
       return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);

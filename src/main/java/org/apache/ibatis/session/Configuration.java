@@ -654,6 +654,7 @@ public class Configuration {
       executor = new SimpleExecutor(this, transaction);
     }
     //如果二级缓存开关开启的话，则使用CachingExecutor装饰BaseExecutor的子类 装饰器模式
+    //setting文件 <setting name="cacheEnabled" value="true"/>
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }

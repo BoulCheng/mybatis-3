@@ -89,12 +89,29 @@ public class CachingExecutor implements Executor {
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 
+  /**
+   * MyBatis的二级缓存相对于一级缓存来说，实现了SqlSession之间缓存数据的共享，同时粒度更加的细，能够到namespace级别
+   * MyBatis在多表查询时 需要添加<cache-ref/>配置
+   * 在分布式环境下，由于默认的MyBatis Cache实现都是基于本地的，分布式环境下会出现读取到脏数据
+   * @param ms
+   * @param parameterObject
+   * @param rowBounds
+   * @param resultHandler
+   * @param key
+   * @param boundSql
+   * @param <E>
+   * @return
+   * @throws SQLException
+   */
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
       throws SQLException {
+    // 从MappedStatement中获得在配置初始化时赋予的Cache //二级缓存开启后，同一个(XML映射文件)namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量
+    // 装饰链 SynchronizedCache -> LoggingCache -> SerializedCache -> LruCache -> PerpetualCache
     Cache cache = ms.getCache();
     if (cache != null) {
       flushCacheIfRequired(ms);
+      // XML映射文件 <cache/>
       if (ms.isUseCache() && resultHandler == null) {
         ensureNoOutParams(ms, boundSql);
         @SuppressWarnings("unchecked")
@@ -106,6 +123,7 @@ public class CachingExecutor implements Executor {
         return list;
       }
     }
+    // 在二级缓存执行流程后就会进入一级缓存的执行流程
     return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 
@@ -164,6 +182,7 @@ public class CachingExecutor implements Executor {
   private void flushCacheIfRequired(MappedStatement ms) {
     Cache cache = ms.getCache();
     if (cache != null && ms.isFlushCacheRequired()) {
+      // 刷新缓存
       tcm.clear(cache);
     }
   }

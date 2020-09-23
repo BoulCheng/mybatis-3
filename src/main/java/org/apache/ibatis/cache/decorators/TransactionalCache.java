@@ -23,6 +23,8 @@ import java.util.Set;
 import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.session.defaults.DefaultSqlSession;
 
 /**
  * The 2nd level cache transactional buffer.
@@ -44,6 +46,10 @@ public class TransactionalCache implements Cache {
   private final Map<Object, Object> entriesToAddOnCommit;
   private final Set<Object> entriesMissedInCache;
 
+  /**
+   * TransactionalCache 包装 cache {@link MappedStatement#getCache()}
+   * @param delegate
+   */
   public TransactionalCache(Cache delegate) {
     this.delegate = delegate;
     this.clearOnCommit = false;
@@ -76,6 +82,12 @@ public class TransactionalCache implements Cache {
     }
   }
 
+  /**
+   * 不是直接操作缓存，只是把这次的数据和key放入待提交的Map
+   * @param key
+   *          Can be any object but usually it is a {@link CacheKey}
+   * @param object
+   */
   @Override
   public void putObject(Object key, Object object) {
     entriesToAddOnCommit.put(key, object);
@@ -92,6 +104,11 @@ public class TransactionalCache implements Cache {
     entriesToAddOnCommit.clear();
   }
 
+  /**
+   * 事务提交, 对缓存的操作才会生效, 对缓存的操作包括select语句添加缓存、更新语句清空缓存
+   * {@link DefaultSqlSession#commit(boolean)}
+   *
+   */
   public void commit() {
     if (clearOnCommit) {
       delegate.clear();
