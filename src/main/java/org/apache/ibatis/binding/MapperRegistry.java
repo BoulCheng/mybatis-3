@@ -34,6 +34,10 @@ import org.apache.ibatis.session.SqlSession;
 public class MapperRegistry {
 
   private final Configuration config;
+  /**
+   * 映射器接口代理工厂
+   * key 映射器接口类 Class
+   */
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
   public MapperRegistry(Configuration config) {
@@ -64,10 +68,13 @@ public class MapperRegistry {
       }
       boolean loadCompleted = false;
       try {
+        //映射器接口代理工厂缓存
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
+
+        //映射器接口注解处理 类似XML映射文件标签处理
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
         parser.parse();
         loadCompleted = true;

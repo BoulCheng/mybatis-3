@@ -115,6 +115,12 @@ public class CacheBuilder {
     }
   }
 
+  /**
+   * LruCache
+   * 默认装饰器链
+   * @param cache
+   * @return
+   */
   private Cache setStandardDecorators(Cache cache) {
     try {
       MetaObject metaCache = SystemMetaObject.forObject(cache);

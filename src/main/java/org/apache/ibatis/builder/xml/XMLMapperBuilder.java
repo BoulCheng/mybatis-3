@@ -77,6 +77,14 @@ public class XMLMapperBuilder extends BaseBuilder {
     this.builderAssistant.setCurrentNamespace(namespace);
   }
 
+  /**
+   * mybatis-spring
+   * 每一个XML映射文件都会生成一个XMLMapperBuilder对象处理
+   * @param inputStream
+   * @param configuration
+   * @param resource
+   * @param sqlFragments
+   */
   public XMLMapperBuilder(InputStream inputStream, Configuration configuration, String resource, Map<String, XNode> sqlFragments) {
     this(new XPathParser(inputStream, true, configuration.getVariables(), new XMLMapperEntityResolver()),
         configuration, resource, sqlFragments);
@@ -90,10 +98,15 @@ public class XMLMapperBuilder extends BaseBuilder {
     this.resource = resource;
   }
 
+  /**
+   * 处理 XML映射文件和映射器接口
+   */
   public void parse() {
     if (!configuration.isResourceLoaded(resource)) {
+      // XML映射文件处理 xml文件标签处理
       configurationElement(parser.evalNode("/mapper"));
       configuration.addLoadedResource(resource);
+      // 映射器接口(xml文件namespace指定)处理 注解处理
       bindMapperForNamespace();
     }
 
@@ -114,16 +127,22 @@ public class XMLMapperBuilder extends BaseBuilder {
       }
       builderAssistant.setCurrentNamespace(namespace);
       cacheRefElement(context.evalNode("cache-ref"));
+      //处理缓存<cache/>
       cacheElement(context.evalNode("cache"));
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
       resultMapElements(context.evalNodes("/mapper/resultMap"));
       sqlElement(context.evalNodes("/mapper/sql"));
+      //处理sql语句标签 <select/> <insert/> <update/> <delete/>
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
     }
   }
 
+  /**
+   * {@link Configuration#mappedStatements}
+   * @param list
+   */
   private void buildStatementFromContext(List<XNode> list) {
     if (configuration.getDatabaseId() != null) {
       buildStatementFromContext(list, configuration.getDatabaseId());

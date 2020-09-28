@@ -115,10 +115,13 @@ public class MapperAnnotationBuilder {
   public void parse() {
     String resource = type.toString();
     if (!configuration.isResourceLoaded(resource)) {
+      //XML映射文件处理
       loadXmlResource();
       configuration.addLoadedResource(resource);
       assistant.setCurrentNamespace(type.getName());
+      //@CacheNamespace
       parseCache();
+      //@CacheNamespaceRef
       parseCacheRef();
       for (Method method : type.getMethods()) {
         if (!canHaveStatement(method)) {
@@ -129,6 +132,7 @@ public class MapperAnnotationBuilder {
           parseResultMap(method);
         }
         try {
+          // Select.class, Update.class, Insert.class, Delete.class, SelectProvider.class, UpdateProvider.class, InsertProvider.class, DeleteProvider.class
           parseStatement(method);
         } catch (IncompleteElementException e) {
           configuration.addIncompleteMethod(new MethodResolver(this, method));

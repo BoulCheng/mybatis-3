@@ -128,7 +128,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       boolean readWrite,
       boolean blocking,
       Properties props) {
-    Cache cache = new CacheBuilder(currentNamespace)
+    Cache cache = new CacheBuilder(currentNamespace)//id 为XML映射文件 namespace 即映射器接口的类全限定名
         .implementation(valueOrDefault(typeClass, PerpetualCache.class))
         .addDecorator(valueOrDefault(evictionClass, LruCache.class))
         .clearInterval(flushInterval)
@@ -137,6 +137,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .blocking(blocking)
         .properties(props)
         .build();
+    // 二级缓存器 粒度为namespace
     configuration.addCache(cache);
     currentCache = cache;
     return cache;
@@ -267,6 +268,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       throw new IncompleteElementException("Cache-ref not yet resolved");
     }
 
+    // 把sql语句标签 <select/> <insert/> <update/> <delete/> id 转化为 namespace + "." + id  namespace为XML映射文件的namespace
     id = applyCurrentNamespace(id, false);
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 
@@ -284,8 +286,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .resultSets(resultSets)
         .resultMaps(getStatementResultMaps(resultMap, resultType, id))
         .resultSetType(resultSetType)
+      // sql语句缓存默认配置处理
         .flushCacheRequired(valueOrDefault(flushCache, !isSelect))
         .useCache(valueOrDefault(useCache, isSelect))
+      // 引用二级缓存器
         .cache(currentCache);
 
     ParameterMap statementParameterMap = getStatementParameterMap(parameterMap, parameterType, id);
@@ -294,6 +298,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
 
     MappedStatement statement = statementBuilder.build();
+    // 每个查询语句statement 生成一个MappedStatement对象 并缓存
     configuration.addMappedStatement(statement);
     return statement;
   }

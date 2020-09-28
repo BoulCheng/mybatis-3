@@ -30,6 +30,10 @@ public class PerpetualCache implements Cache {
 
   private final Map<Object, Object> cache = new HashMap<>();
 
+  /**
+   * id 为XML映射文件 namespace 即映射器接口的类全限定名
+   * @param id
+   */
   public PerpetualCache(String id) {
     this.id = id;
   }

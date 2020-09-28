@@ -151,9 +151,19 @@ public class Configuration {
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
+  /**
+   * 每个查询语句statement 生成一个MappedStatement对象 并缓存
+   * key   namespace + "." + id  id为<select/> <insert/> <update/> <delete/> id
+   * value MappedStatement对象
+   */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
+  /**
+   * 每个配置了二级缓存了的xml映射文件可能对应一个Cache
+   * key XML映射文件配置的namespace
+   * value XML映射文件配置的cache
+   */
   protected final Map<String, Cache> caches = new StrictMap<>("Caches collection");
   protected final Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps collection");
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<>("Parameter Maps collection");
