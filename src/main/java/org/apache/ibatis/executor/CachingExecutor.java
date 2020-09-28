@@ -109,6 +109,8 @@ public class CachingExecutor implements Executor {
     // 从MappedStatement中获得在配置初始化时赋予的Cache //二级缓存开启后，同一个(XML映射文件)namespace下的所有操作语句，都影响着同一个Cache，即二级缓存被多个SqlSession共享，是一个全局的变量
     // 装饰链 SynchronizedCache -> LoggingCache -> SerializedCache -> LruCache -> PerpetualCache
     Cache cache = ms.getCache();
+    //setting文件配置二级缓存开启配置 <setting name="cacheEnabled" value="true"/> 才会用 CachingExecutor 装饰BaseExecutor的子类
+    // XML映射文件配置了缓存标签 或者 映射器接口注解相关缓存注解 每个sql查询语句MappedStatement采用引用到 namespace粒度的二级缓存实例对象 此处的cache才不等于null
     if (cache != null) {
       flushCacheIfRequired(ms);
       // XML映射文件 <cache/>

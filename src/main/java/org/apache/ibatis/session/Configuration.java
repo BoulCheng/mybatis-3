@@ -154,7 +154,7 @@ public class Configuration {
   /**
    * 每个查询语句statement 生成一个MappedStatement对象 并缓存
    * key   namespace + "." + id  id为<select/> <insert/> <update/> <delete/> id
-   * value MappedStatement对象
+   * value MappedStatement对象 引用了 namespace对应的二级缓存器
    */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
