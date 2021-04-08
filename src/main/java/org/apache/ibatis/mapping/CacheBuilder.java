@@ -116,6 +116,7 @@ public class CacheBuilder {
   }
 
   /**
+   * 二级缓存装饰器链
    * LruCache
    * 默认装饰器链
    * @param cache
@@ -128,6 +129,7 @@ public class CacheBuilder {
         metaCache.setValue("size", size);
       }
       if (clearInterval != null) {
+        //
         cache = new ScheduledCache(cache);
         ((ScheduledCache) cache).setClearInterval(clearInterval);
       }

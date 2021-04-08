@@ -20,6 +20,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 可按时间间隔刷新缓存
+ */
+
+/**
  * @author Clinton Begin
  */
 public class ScheduledCache implements Cache {
@@ -82,6 +86,10 @@ public class ScheduledCache implements Cache {
     return delegate.equals(obj);
   }
 
+  /**
+   * 刷新二级缓存
+   * @return
+   */
   private boolean clearWhenStale() {
     if (System.currentTimeMillis() - lastClear > clearInterval) {
       clear();

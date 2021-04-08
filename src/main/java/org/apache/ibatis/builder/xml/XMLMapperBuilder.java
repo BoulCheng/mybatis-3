@@ -224,6 +224,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
       String eviction = context.getStringAttribute("eviction", "LRU");
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      // 二级缓存 刷新间隔
       Long flushInterval = context.getLongAttribute("flushInterval");
       Integer size = context.getIntAttribute("size");
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
