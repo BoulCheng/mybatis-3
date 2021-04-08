@@ -138,6 +138,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .properties(props)
         .build();
     // 二级缓存器 粒度为namespace
+    // 二级缓存器 粒度为namespace
     configuration.addCache(cache);
     currentCache = cache;
     return cache;
@@ -289,6 +290,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       // sql语句缓存默认配置处理
         .flushCacheRequired(valueOrDefault(flushCache, !isSelect))
         .useCache(valueOrDefault(useCache, isSelect))
+      // 引用二级缓存器
       // 引用二级缓存器
         .cache(currentCache);
 
