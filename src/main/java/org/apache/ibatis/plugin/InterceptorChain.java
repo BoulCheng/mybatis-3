@@ -24,9 +24,14 @@ import java.util.List;
  */
 public class InterceptorChain {
 
+  /**
+   * Interceptor 实现类对象集合
+   */
   private final List<Interceptor> interceptors = new ArrayList<>();
 
   /**
+   * 每个Interceptor实现类(插件)都可能对应生成一个代理对象 代理目标对象的方法 最终生成一个代理对象的拦截器链(责任链模式)
+   *
    * 每个拦截器都通过代理处理 其实最终生成一个代理链
    * @param target
    * @return

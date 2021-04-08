@@ -41,12 +41,16 @@ public class Plugin implements InvocationHandler {
   }
 
   /**
+   * interceptor实现类(插件)@Intercepts(@Signature(type)) 指定的接口集合包含目标对象实现的接口 记这些接口为 目标接口集合
+   * 会创建 目标接口集合 的代理对象 代理目标对象target
+   *
    * 拦截器处理 通过代理处理
    * @param target
    * @param interceptor
    * @return
    */
   public static Object wrap(Object target, Interceptor interceptor) {
+    // @Intercepts 注解处理
     Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
     Class<?> type = target.getClass();
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
@@ -65,6 +69,8 @@ public class Plugin implements InvocationHandler {
     try {
       Set<Method> methods = signatureMap.get(method.getDeclaringClass());
       if (methods != null && methods.contains(method)) {
+        // 代理目标接口方法 执行intercept方法
+        //intercept方法 中调用 Invocation#proceed 继续执行被代理的方法
         return interceptor.intercept(new Invocation(target, method, args));
       }
       return method.invoke(target, args);
@@ -75,6 +81,14 @@ public class Plugin implements InvocationHandler {
 
   /**
    * 拦截器@Intercepts注解处理
+   *
+   * 如
+   * @Intercepts({
+   *         @Signature(type = StatementHandler.class, method = "query", args = {Statement.class, ResultHandler.class}),
+   *         @Signature(type = StatementHandler.class, method = "update", args = {Statement.class}),
+   *         @Signature(type = StatementHandler.class, method = "batch", args = {Statement.class})
+   * })
+   *
    * @param interceptor
    * @return
    */
@@ -85,6 +99,7 @@ public class Plugin implements InvocationHandler {
       throw new PluginException("No @Intercepts annotation was found in interceptor " + interceptor.getClass().getName());
     }
     Signature[] sigs = interceptsAnnotation.value();
+    // key type , value  method args 对应的方法集合
     Map<Class<?>, Set<Method>> signatureMap = new HashMap<>();
     for (Signature sig : sigs) {
       Set<Method> methods = signatureMap.computeIfAbsent(sig.type(), k -> new HashSet<>());
