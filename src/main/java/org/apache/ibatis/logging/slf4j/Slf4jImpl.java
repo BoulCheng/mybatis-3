@@ -36,6 +36,7 @@ public class Slf4jImpl implements Log {
       try {
         // check for slf4j >= 1.6 method signature
         logger.getClass().getMethod("log", Marker.class, String.class, int.class, String.class, Object[].class, Throwable.class);
+        //
         log = new Slf4jLocationAwareLoggerImpl((LocationAwareLogger) logger);
         return;
       } catch (SecurityException | NoSuchMethodException e) {
@@ -43,6 +44,7 @@ public class Slf4jImpl implements Log {
       }
     }
 
+    //
     // Logger is not LocationAwareLogger or slf4j version < 1.6
     log = new Slf4jLoggerImpl(logger);
   }

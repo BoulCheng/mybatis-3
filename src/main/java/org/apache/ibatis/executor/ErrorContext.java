@@ -16,6 +16,14 @@
 package org.apache.ibatis.executor;
 
 /**
+ * 单例模式
+ * 对象单件
+ * 此处并不是应用程序全局的 而是一个线程的全域一个对象单件
+ *
+ * 如 记录本次执行过程中相关上下文信息，待发生Error时候其他组件就可以从本类实例中获取到相关的上下文信息
+ */
+
+/**
  * @author Clinton Begin
  */
 public class ErrorContext {

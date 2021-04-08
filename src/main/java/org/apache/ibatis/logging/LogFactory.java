@@ -18,6 +18,12 @@ package org.apache.ibatis.logging;
 import java.lang.reflect.Constructor;
 
 /**
+ * 简单工厂模式
+ *
+ * 单例模式 类单件
+ */
+
+/**
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -60,6 +66,7 @@ public final class LogFactory {
   }
 
   public static synchronized void useSlf4jLogging() {
+    //
     setImplementation(org.apache.ibatis.logging.slf4j.Slf4jImpl.class);
   }
 
@@ -88,7 +95,7 @@ public final class LogFactory {
   }
 
   private static void tryImplementation(Runnable runnable) {
-    if (logConstructor == null) {
+    if (logConstructor == null) { // 找到一种日志即可
       try {
         runnable.run();
       } catch (Throwable t) {

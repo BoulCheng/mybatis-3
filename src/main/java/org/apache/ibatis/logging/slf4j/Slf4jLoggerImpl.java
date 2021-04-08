@@ -19,10 +19,19 @@ import org.apache.ibatis.logging.Log;
 import org.slf4j.Logger;
 
 /**
+ * 适配器模式
+ *
+ * Mybatis内部在使用日志模块时，使用了其内部接口 org.apache.ibatis.logging.Log,但是常用的日志框架的对外接口各不相同，Mybatis为了复用和集成这些第三方日志组件，在其日志模块中，提供了多种Adapter,将这些第三方日志组件对外接口适配成org.apache.ibatis.logging.Log，这样Myabtis 就可以通过Log接口调用第三方日志了
+ *
+ * Slf4jLoggerImpl 相当于适配器
+ */
+
+/**
  * @author Eduardo Macarron
  */
 class Slf4jLoggerImpl implements Log {
 
+  // 相当于目标接口
   private final Logger log;
 
   public Slf4jLoggerImpl(Logger logger) {

@@ -33,6 +33,12 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 
 /**
+ * 装饰器模式
+ *
+ * 实现二级缓存功能
+ */
+
+/**
  * @author Clinton Begin
  * @author Eduardo Macarron
  */

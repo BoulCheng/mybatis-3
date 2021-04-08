@@ -26,6 +26,14 @@ import org.apache.ibatis.session.SqlSession;
 /**
  * @author Lasse Voss
  */
+
+/**
+ * 工厂模式(未实现接口)
+ * 用于创建Mapper接口类型的代理对象
+ *
+ * 映射器代理对象工厂类
+ * @param <T>
+ */
 public class MapperProxyFactory<T> {
 
   private final Class<T> mapperInterface;

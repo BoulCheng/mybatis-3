@@ -21,6 +21,13 @@ import java.util.Map;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ *
+ * 装饰器模式
+ *
+ * 二级缓存装饰器
+ */
+
+/**
  * Lru (least recently used) cache decorator.
  *
  * @author Clinton Begin

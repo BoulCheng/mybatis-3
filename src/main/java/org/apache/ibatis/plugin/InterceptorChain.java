@@ -20,6 +20,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 责任链模式
+ * 拦截器
+ *
+ * 多个插件(Interceptor实现类)的处理
+ *
  * @author Clinton Begin
  */
 public class InterceptorChain {

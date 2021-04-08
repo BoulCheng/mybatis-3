@@ -30,6 +30,13 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * 涉及 代理模式
+ * JDK动态代理
+ *
+ * 为Mapper接口类型 创建代理类 目的执行方法执行对应的SQL
+ */
+
+/**
  * @author Clinton Begin
  * @author Eduardo Macarron
  */

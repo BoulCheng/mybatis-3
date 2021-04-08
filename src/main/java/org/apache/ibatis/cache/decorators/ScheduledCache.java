@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 装饰器
  * 可按时间间隔刷新缓存
  */
 

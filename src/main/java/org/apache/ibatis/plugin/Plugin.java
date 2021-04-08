@@ -26,6 +26,13 @@ import java.util.Set;
 import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
+ * 代理模式
+ *
+ * 插件的运行机制
+ * 代理目标对象目标方法执行 {@link org.apache.ibatis.plugin.Interceptor#intercept(org.apache.ibatis.plugin.Invocation)}
+ */
+
+/**
  * @author Clinton Begin
  */
 public class Plugin implements InvocationHandler {
