@@ -47,6 +47,7 @@ public class PooledDataSource implements DataSource {
   // OPTIONAL CONFIGURATION FIELDS
   protected int poolMaximumActiveConnections = 10;
   protected int poolMaximumIdleConnections = 5;
+  // 在一个连接*可能*被再次释放之前，它可以被使用的最大时间。
   protected int poolMaximumCheckoutTime = 20000;
   protected int poolTimeToWait = 20000;
   protected int poolMaximumLocalBadConnectionTolerance = 3;
@@ -375,6 +376,7 @@ public class PooledDataSource implements DataSource {
   protected void pushConnection(PooledConnection conn) throws SQLException {
 
     synchronized (state) {
+      //从活跃列表 activeConnections 移除
       state.activeConnections.remove(conn);
       if (conn.isValid()) {
         if (state.idleConnections.size() < poolMaximumIdleConnections && conn.getConnectionTypeCode() == expectedConnectionTypeCode) {
@@ -383,6 +385,7 @@ public class PooledDataSource implements DataSource {
             conn.getRealConnection().rollback();
           }
           PooledConnection newConn = new PooledConnection(conn.getRealConnection(), this);
+          // 空闲列表未满 idleConnections 放入空闲列表
           state.idleConnections.add(newConn);
           newConn.setCreatedTimestamp(conn.getCreatedTimestamp());
           newConn.setLastUsedTimestamp(conn.getLastUsedTimestamp());
@@ -390,12 +393,14 @@ public class PooledDataSource implements DataSource {
           if (log.isDebugEnabled()) {
             log.debug("Returned connection " + newConn.getRealHashCode() + " to pool.");
           }
+          // 并通知唤醒等待获取连接的线程
           state.notifyAll();
         } else {
           state.accumulatedCheckoutTime += conn.getCheckoutTime();
           if (!conn.getRealConnection().getAutoCommit()) {
             conn.getRealConnection().rollback();
           }
+          // 空闲列表 idleConnections 已满 关闭连接
           conn.getRealConnection().close();
           if (log.isDebugEnabled()) {
             log.debug("Closed connection " + conn.getRealHashCode() + ".");
@@ -420,6 +425,8 @@ public class PooledDataSource implements DataSource {
     while (conn == null) {
       synchronized (state) {
         if (!state.idleConnections.isEmpty()) {
+          //可以从 空闲列表 idleConnections 获取
+
           // Pool has available connection
           conn = state.idleConnections.remove(0);
           if (log.isDebugEnabled()) {
@@ -428,16 +435,22 @@ public class PooledDataSource implements DataSource {
         } else {
           // Pool does not have available connection
           if (state.activeConnections.size() < poolMaximumActiveConnections) {
+            //活跃列表 activeConnections 未满 新建连接
+
             // Can create new connection
             conn = new PooledConnection(dataSource.getConnection(), this);
             if (log.isDebugEnabled()) {
               log.debug("Created connection " + conn.getRealHashCode() + ".");
             }
           } else {
+            //活跃列表 activeConnections 已满
+
             // Cannot create new connection
-            PooledConnection oldestActiveConnection = state.activeConnections.get(0);
-            long longestCheckoutTime = oldestActiveConnection.getCheckoutTime();
+            PooledConnection oldestActiveConnection = state.activeConnections.get(0); //最老的活跃连接
+            long longestCheckoutTime = oldestActiveConnection.getCheckoutTime(); //最长的检出时间
             if (longestCheckoutTime > poolMaximumCheckoutTime) {
+              // 最老的活跃连接超过可以使用的最大时间
+
               // Can claim overdue connection
               state.claimedOverdueConnectionCount++;
               state.accumulatedCheckoutTimeOfOverdueConnections += longestCheckoutTime;
@@ -466,6 +479,8 @@ public class PooledDataSource implements DataSource {
                 log.debug("Claimed overdue connection " + conn.getRealHashCode() + ".");
               }
             } else {
+              //当前线程等待一定时间获取连接  (其他线程释放连接) 重新尝试从空闲列表 idleConnections 获取
+
               // Must wait
               try {
                 if (!countedWait) {
@@ -491,7 +506,9 @@ public class PooledDataSource implements DataSource {
               conn.getRealConnection().rollback();
             }
             conn.setConnectionTypeCode(assembleConnectionTypeCode(dataSource.getUrl(), username, password));
+            // 更新检出时间
             conn.setCheckoutTimestamp(System.currentTimeMillis());
+            // 更新最后一次使用时间
             conn.setLastUsedTimestamp(System.currentTimeMillis());
             state.activeConnections.add(conn);
             state.requestCount++;

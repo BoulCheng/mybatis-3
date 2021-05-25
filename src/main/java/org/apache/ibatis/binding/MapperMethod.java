@@ -44,6 +44,10 @@ import org.apache.ibatis.session.SqlSession;
  * @author Lasse Voss
  * @author Kazuki Shimizu
  */
+
+/**
+ * 根据接口、方法名找到对应的sql执行
+ */
 public class MapperMethod {
 
   private final SqlCommand command;
